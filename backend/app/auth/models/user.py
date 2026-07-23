@@ -1,17 +1,12 @@
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKey
 
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import mapped_column, relationship
 
 from app.models.base import Base
 from app.models.mixins import UUIDMixin, AuditMixin
 
 
-class User(
-    Base,
-    UUIDMixin,
-    AuditMixin
-):
+class User(Base, UUIDMixin, AuditMixin):
 
     __tablename__ = "users"
 
@@ -36,14 +31,24 @@ class User(
     )
 
 
-    role = mapped_column(
-        String,
-        default="employee"
+    role_id = mapped_column(
+        ForeignKey("roles.id"),
+        nullable=True
     )
-    
+
+
+    # Relationships
+
+    role = relationship(
+    "Role",
+    back_populates="users",
+    foreign_keys=[role_id]
+    )
+
+
     employee = relationship(
-    "Employee",
-    back_populates="user",
-    uselist=False,
-    foreign_keys="Employee.user_id"
-)
+        "Employee",
+        back_populates="user",
+        uselist=False,
+        foreign_keys="Employee.user_id"
+    )

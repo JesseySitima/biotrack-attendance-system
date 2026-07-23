@@ -7,6 +7,7 @@ from alembic import context
 
 from app.models.base import Base
 from app.auth.models import User
+from app.auth.models import Role
 from app.organization.models import (
     Branch,
     Department,

@@ -75,6 +75,11 @@ class Employee(
         ForeignKey("positions.id"),
         nullable=False
     )
+    
+    manager_id = mapped_column(
+    ForeignKey("employees.id"),
+    nullable=True
+)
 
 
     # Relationships
@@ -101,4 +106,16 @@ class Employee(
     position = relationship(
         "Position",
         back_populates="employees"
+    )
+    
+    manager = relationship(
+    "Employee",
+    remote_side="Employee.id",
+    back_populates="team_members"
+)
+
+
+    team_members = relationship(
+        "Employee",
+        back_populates="manager"
     )

@@ -18,6 +18,9 @@ from app.organization.schemas.employee import (
     EmployeeResponse
 )
 
+from app.organization.schemas.employee_account import (
+    EmployeeAccountCreate
+)
 
 from app.organization.services import (
     create_employee,
@@ -26,6 +29,12 @@ from app.organization.services import (
     update_employee,
     delete_employee
 )
+
+from app.organization.services.employee_account import (
+    assign_employee_account
+)
+
+
 
 
 
@@ -142,3 +151,18 @@ def remove_employee(
     return {
         "message": "Employee deleted successfully"
     }
+    
+@router.post(
+    "/{employee_id}/assign-account"
+)
+def create_employee_account(
+    employee_id: UUID,
+    account_data: EmployeeAccountCreate,
+    db: Session = Depends(get_db)
+):
+
+    return assign_employee_account(
+        db,
+        employee_id,
+        account_data
+    )

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.organization.models.employee import Employee
@@ -7,22 +8,72 @@ from app.organization.schemas.employee import (
     EmployeeUpdate
 )
 
+def generate_employee_number(
+    db: Session
+):
 
+    last_employee = (
+        db.query(Employee)
+        .order_by(
+            Employee.created_at.desc()
+        )
+        .first()
+    )
+
+
+    if not last_employee:
+        return "EMP000001"
+
+
+    last_number = int(
+        last_employee.employee_number.replace(
+            "EMP",
+            ""
+        )
+    )
+
+
+    next_number = last_number + 1
+
+
+    return f"EMP{next_number:06d}"
 
 def create_employee(
     db: Session,
     employee_data: EmployeeCreate
 ):
+    
+    employee_number = generate_employee_number(db)
+    
+    if employee_data.manager_id:
+
+        manager = (
+            db.query(Employee)
+            .filter(
+                Employee.id == employee_data.manager_id
+            )
+            .first()
+        )
+
+
+        if not manager:
+            raise HTTPException(
+                status_code=404,
+                detail="Manager not found."
+            )
+        
+    
 
     employee = Employee(
-        employee_number=employee_data.employee_number,
+        employee_number=employee_number,
         first_name=employee_data.first_name,
         last_name=employee_data.last_name,
         phone=employee_data.phone,
         email=employee_data.email,
         branch_id=employee_data.branch_id,
         department_id=employee_data.department_id,
-        position_id=employee_data.position_id
+        position_id=employee_data.position_id,
+        manager_id=employee_data.manager_id,
     )
 
 
@@ -104,6 +155,9 @@ def update_employee(
 
     if employee_data.position_id is not None:
         employee.position_id = employee_data.position_id
+        
+    if employee_data.manager_id is not None:
+        employee.manager_id = employee_data.manager_id
 
 
     db.commit()
