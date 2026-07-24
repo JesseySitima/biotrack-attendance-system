@@ -14,6 +14,11 @@ from app.organization.models import (
     Position,
     Employee
 )
+from app.leave_management.models import (
+    LeaveType,
+    LeaveBalance,
+    LeaveRequest
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

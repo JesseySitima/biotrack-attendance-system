@@ -5,10 +5,15 @@ from app.config import settings
 from app.database import engine
 
 from app.auth.routers import auth
+from app.auth.routers import role
 from app.organization.routers import branch
 from app.organization.routers import department
 from app.organization.routers import position
 from app.organization.routers import employee
+from app.leave_management.routers import (
+    leave_type,
+    leave_request
+)
 
 
 app = FastAPI(
@@ -18,6 +23,10 @@ app = FastAPI(
 
 
 app.include_router(auth.router)
+
+app.include_router(
+    role.router
+)
 app.include_router(
     branch.router
 )
@@ -29,6 +38,12 @@ app.include_router(
 )
 app.include_router(
     employee.router
+)
+app.include_router(
+    leave_type.router
+)
+app.include_router(
+    leave_request.router
 )
 
 

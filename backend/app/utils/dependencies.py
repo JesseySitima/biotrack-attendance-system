@@ -61,4 +61,11 @@ def get_current_user(
         raise credentials_exception
 
 
+    if user.employee is None:
+        raise HTTPException(
+            status_code=400,
+            detail="User is not linked to an employee"
+        )
+
+
     return user
