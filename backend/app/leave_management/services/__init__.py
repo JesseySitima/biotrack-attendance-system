@@ -11,6 +11,12 @@ from app.leave_management.services.leave_request import (
     get_leave_request,
     get_employee_leave_requests,
     approve_leave_request,
+    get_manager_leave_requests
+)
+from app.leave_management.services.leave_balance import (
+    initialize_employee_leave_balances,
+    get_employee_leave_balance,
+    get_employee_leave_balances, 
 )
 
 __all__ = [
@@ -25,4 +31,10 @@ __all__ = [
     "get_leave_request",
     "get_employee_leave_requests",
     "approve_leave_request",
+    
+    "initialize_employee_leave_balances",
+    "get_employee_leave_balance",
+    "get_employee_leave_balances",
+    "get_manager_leave_requests"
+    
 ]

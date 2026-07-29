@@ -14,6 +14,7 @@ from datetime import datetime
 
 from app.models.base import Base
 from app.models.mixins import UUIDMixin, AuditMixin
+from app.leave_management.constants import LEAVE_PENDING
 
 class LeaveRequest(
     Base,
@@ -57,7 +58,7 @@ class LeaveRequest(
     status = mapped_column(
         String,
         nullable=False,
-        default="PENDING"
+        default=LEAVE_PENDING
     )
 
 

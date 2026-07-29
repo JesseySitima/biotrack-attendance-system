@@ -8,6 +8,10 @@ from app.organization.schemas.employee import (
     EmployeeUpdate
 )
 
+from app.leave_management.services import (
+    initialize_employee_leave_balances
+)
+
 def generate_employee_number(
     db: Session
 ):
@@ -78,6 +82,13 @@ def create_employee(
 
 
     db.add(employee)
+
+    db.flush()
+
+    initialize_employee_leave_balances(
+        db,
+        employee.id
+    )
 
     db.commit()
 

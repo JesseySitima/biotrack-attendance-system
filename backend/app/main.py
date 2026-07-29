@@ -12,7 +12,8 @@ from app.organization.routers import position
 from app.organization.routers import employee
 from app.leave_management.routers import (
     leave_type,
-    leave_request
+    leave_request,
+    leave_balance
 )
 
 
@@ -44,6 +45,9 @@ app.include_router(
 )
 app.include_router(
     leave_request.router
+)
+app.include_router(
+    leave_balance.router
 )
 
 

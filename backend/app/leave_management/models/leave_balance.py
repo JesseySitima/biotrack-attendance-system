@@ -65,3 +65,7 @@ class LeaveBalance(
     leave_type = relationship(
         "LeaveType"
     )
+    
+    @property
+    def remaining_days(self) -> int:
+        return self.allocated_days - self.used_days
