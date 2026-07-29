@@ -4,7 +4,8 @@ from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    status
+    status,
+    Query
 )
 
 from sqlalchemy.orm import Session
@@ -37,7 +38,8 @@ from app.leave_management.services import (
 )
 
 from app.leave_management.constants import (
-    LEAVE_APPROVED
+    LEAVE_APPROVED,
+    LEAVE_REJECTED
 )
 
 
@@ -92,12 +94,18 @@ def team_leave_requests(
         db,
         employee.id
     ) 
+ 
+ 
     
 @router.get(
     "",
     response_model=list[LeaveRequestResponse]
 )
 def all_leave_requests(
+    status_filter: str | None = Query(
+        default=None,
+        alias="status"
+    ),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -110,8 +118,11 @@ def all_leave_requests(
 
 
     return get_leave_requests(
-        db
+        db,
+        status_filter
     )
+
+
 
 @router.post(
     "",
@@ -168,6 +179,40 @@ def approve_leave(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to approve this leave request"
+        )
+
+
+    return leave_request
+
+@router.put(
+    "/{leave_request_id}/reject",
+    response_model=LeaveRequestResponse
+)
+def reject_leave(
+    leave_request_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    leave_request = approve_leave_request(
+        db=db,
+        leave_request_id=leave_request_id,
+        current_user=current_user,
+        status=LEAVE_REJECTED
+    )
+
+
+    if leave_request is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Leave request not found"
+        )
+
+
+    if leave_request is False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to reject this leave request"
         )
 
 

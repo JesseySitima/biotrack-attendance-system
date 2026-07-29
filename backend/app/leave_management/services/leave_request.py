@@ -105,13 +105,20 @@ def create_leave_request(
     return leave_request
 
 def get_leave_requests(
-    db: Session
+    db: Session,
+    status: str | None = None
 ):
 
-    return (
-        db.query(LeaveRequest)
-        .all()
-    )
+    query = db.query(LeaveRequest)
+
+
+    if status:
+        query = query.filter(
+            LeaveRequest.status == status
+        )
+
+
+    return query.all()
 
 
 
