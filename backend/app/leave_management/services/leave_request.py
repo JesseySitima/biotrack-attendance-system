@@ -12,13 +12,15 @@ from app.leave_management.schemas.leave_request import (
 from app.leave_management.services.leave_balance import (
     get_employee_leave_balance,
     consume_leave_balance,
-    has_sufficient_balance
+    has_sufficient_balance,
+    restore_leave_balance,
 )
 
 from app.leave_management.constants import (
     LEAVE_PENDING,
     LEAVE_APPROVED,
     LEAVE_REJECTED,
+    LEAVE_CANCELLED,
     LEAVE_FULL_DAY,
     LEAVE_HALF_DAY_AM,
     LEAVE_HALF_DAY_PM
@@ -330,5 +332,57 @@ def approve_leave_request(
         db.rollback()
         raise
 
+
+    return leave_request
+
+def cancel_leave_request(
+    db: Session,
+    leave_request_id: UUID
+):
+    leave_request = (
+        db.query(LeaveRequest)
+        .filter(
+            LeaveRequest.id == leave_request_id
+        )
+        .first()
+    )
+
+    if not leave_request:
+        return None
+
+    if leave_request.status == LEAVE_REJECTED:
+        raise ValueError(
+            "Rejected leave requests cannot be cancelled."
+        )
+
+    if leave_request.status == LEAVE_CANCELLED:
+        raise ValueError(
+            "Leave request has already been cancelled."
+        )
+
+    if leave_request.duration in (
+        LEAVE_HALF_DAY_AM,
+        LEAVE_HALF_DAY_PM,
+    ):
+        days = 0.5
+    else:
+        days = calculate_leave_days(
+            db=db,
+            start_date=leave_request.start_date,
+            end_date=leave_request.end_date
+        )
+
+    if leave_request.status == LEAVE_APPROVED:
+        restore_leave_balance(
+            db=db,
+            employee_id=leave_request.employee_id,
+            leave_type_id=leave_request.leave_type_id,
+            days=days
+        )
+
+    leave_request.status = LEAVE_CANCELLED
+
+    db.commit()
+    db.refresh(leave_request)
 
     return leave_request

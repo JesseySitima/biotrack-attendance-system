@@ -99,6 +99,31 @@ def consume_leave_balance(
 
     return balance
 
+def restore_leave_balance(
+    db: Session,
+    employee_id,
+    leave_type_id,
+    days: float
+):
+    balance = get_employee_leave_balance(
+        db=db,
+        employee_id=employee_id,
+        leave_type_id=leave_type_id
+    )
+
+    if not balance:
+        return None
+
+    balance.used_days -= days
+
+    if balance.used_days < 0:
+        balance.used_days = 0.0
+
+    db.commit()
+    db.refresh(balance)
+
+    return balance
+
 def has_sufficient_balance(
     db: Session,
     employee_id: UUID,

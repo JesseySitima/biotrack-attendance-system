@@ -34,7 +34,8 @@ from app.leave_management.services import (
     approve_leave_request,
     get_employee_leave_requests,
     get_manager_leave_requests,
-    get_leave_requests
+    get_leave_requests,
+    cancel_leave_request
 )
 
 from app.leave_management.constants import (
@@ -222,5 +223,27 @@ def reject_leave(
             detail="You are not allowed to reject this leave request"
         )
 
+
+    return leave_request
+
+@router.patch(
+    "/leave-requests/{leave_request_id}/cancel",
+    response_model=LeaveRequestResponse
+)
+def cancel_leave(
+    leave_request_id: UUID,
+    db: Session = Depends(get_db)
+):
+
+    leave_request = cancel_leave_request(
+        db=db,
+        leave_request_id=leave_request_id
+    )
+
+    if not leave_request:
+        raise HTTPException(
+            status_code=404,
+            detail="Leave request not found"
+        )
 
     return leave_request
