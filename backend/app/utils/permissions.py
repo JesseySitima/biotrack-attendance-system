@@ -10,8 +10,8 @@ def is_hr_or_admin(
 
 
     return user.role.name in [
-        "HR_MANAGER",
-        "ADMIN"
+        "Super Admin",
+        "HR Manager",
     ]
 
 def is_manager_of_employee(

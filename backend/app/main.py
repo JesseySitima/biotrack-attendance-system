@@ -13,57 +13,37 @@ from app.organization.routers import employee
 from app.leave_management.routers import (
     leave_type,
     leave_request,
-    leave_balance
+    leave_balance,
+    public_holiday,
 )
 
-
-app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION
-)
+app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
 
 
 app.include_router(auth.router)
 
-app.include_router(
-    role.router
-)
-app.include_router(
-    branch.router
-)
-app.include_router(
-    department.router
-)
-app.include_router(
-    position.router
-)
-app.include_router(
-    employee.router
-)
-app.include_router(
-    leave_type.router
-)
-app.include_router(
-    leave_request.router
-)
-app.include_router(
-    leave_balance.router
-)
+app.include_router(role.router)
+#organization
+app.include_router(branch.router)
+app.include_router(department.router)
+app.include_router(position.router)
+app.include_router(employee.router)
+#Leave Management
+app.include_router(leave_type.router)
+app.include_router(leave_request.router)
+app.include_router(leave_balance.router)
+app.include_router(public_holiday.router)
 
 
 @app.get("/")
 def root():
-    return {
-        "message": "BioTrack API is running"
-    }
+    return {"message": "BioTrack API is running"}
 
 
 @app.get("/health")
 def health_check():
 
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}
 
 
 @app.get("/database-health")
@@ -73,13 +53,8 @@ def database_health():
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
 
-        return {
-            "database": "connected"
-        }
+        return {"database": "connected"}
 
     except Exception as error:
 
-        return {
-            "database": "failed",
-            "error": str(error)
-        }
+        return {"database": "failed", "error": str(error)}

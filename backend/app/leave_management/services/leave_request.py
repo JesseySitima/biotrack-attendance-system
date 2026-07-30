@@ -30,17 +30,29 @@ from app.utils.permissions import (
 
 from app.auth.models.user import User
 
+from app.leave_management.services.leave_calculator import (
+    calculate_leave_days
+)
 
-def calculate_leave_days(
+def has_overlapping_leave_request(
+    db: Session,
+    employee_id: UUID,
     start_date,
     end_date
 ):
+    leave_request = (
+        db.query(LeaveRequest)
+        .filter(
+            LeaveRequest.employee_id == employee_id,
+            LeaveRequest.status != LEAVE_REJECTED,
+            LeaveRequest.start_date <= end_date,
+            LeaveRequest.end_date >= start_date,
+        )
+        .first()
+    )
 
-    return (
-        end_date - start_date
-    ).days + 1
-    
-    
+    return leave_request is not None
+
 
 def create_leave_request(
     db: Session,
@@ -52,11 +64,22 @@ def create_leave_request(
         raise ValueError(
             "End date cannot be before start date"
         )
+        
+    if has_overlapping_leave_request(
+        db=db,
+        employee_id=employee_id,
+        start_date=leave_request_data.start_date,
+        end_date=leave_request_data.end_date
+    ):
+        raise ValueError(
+            "You already have another leave request that overlaps these dates."
+        )
 
 
     requested_days = calculate_leave_days(
-        leave_request_data.start_date,
-        leave_request_data.end_date
+        db=db,
+        start_date=leave_request_data.start_date,
+        end_date=leave_request_data.end_date
     )
 
 
@@ -232,11 +255,11 @@ def approve_leave_request(
     if not can_approve:
         return False
     
-    days = (
-        leave_request.end_date -
-        leave_request.start_date
-    ).days + 1
-
+    days = calculate_leave_days(
+        db=db,
+        start_date=leave_request.start_date,
+        end_date=leave_request.end_date
+    )
 
     if status == LEAVE_APPROVED:
 

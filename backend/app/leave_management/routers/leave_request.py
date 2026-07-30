@@ -144,11 +144,18 @@ def request_leave(
         )
 
 
-    return create_leave_request(
-        db,
-        employee.id,
-        leave_request
-    )
+    try:
+        return create_leave_request(
+            db,
+            employee.id,
+            leave_request
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     
 @router.put(
     "/{leave_request_id}/approve",

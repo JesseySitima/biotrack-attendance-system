@@ -17,7 +17,8 @@ from app.organization.models import (
 from app.leave_management.models import (
     LeaveType,
     LeaveBalance,
-    LeaveRequest
+    LeaveRequest,
+    PublicHoliday
 )
 
 # this is the Alembic Config object, which provides
