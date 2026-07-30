@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.database import SessionLocal
+from contextlib import asynccontextmanager
+
 from app.config import settings
 from app.database import engine
 
@@ -16,19 +19,41 @@ from app.leave_management.routers import (
     leave_balance,
     public_holiday,
 )
+from app.organization.services.work_schedule_seed import (
+    seed_default_work_schedule,
+)
 
-app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    db = SessionLocal()
+
+    try:
+        seed_default_work_schedule(db)
+
+    finally:
+        db.close()
+
+    yield
+
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    lifespan=lifespan
+)
 
 
 app.include_router(auth.router)
 
 app.include_router(role.router)
-#organization
+# organization
 app.include_router(branch.router)
 app.include_router(department.router)
 app.include_router(position.router)
 app.include_router(employee.router)
-#Leave Management
+# Leave Management
 app.include_router(leave_type.router)
 app.include_router(leave_request.router)
 app.include_router(leave_balance.router)

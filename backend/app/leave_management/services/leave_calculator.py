@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from sqlalchemy.orm import Session
 
 from app.leave_management.models import PublicHoliday
-
+from app.organization.services.work_schedule import get_work_schedule
 
 def calculate_leave_days(
     db: Session,
@@ -26,10 +26,14 @@ def calculate_leave_days(
     days = 0
     current = start_date
 
+    schedule = get_work_schedule(db)
+
     while current <= end_date:
 
-        # Monday=0 ... Sunday=6
-        if current.weekday() < 5 and current not in holidays:
+        if (
+            schedule.get(current.weekday(), False)
+            and current not in holidays
+        ):
             days += 1
 
         current += timedelta(days=1)

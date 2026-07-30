@@ -12,7 +12,8 @@ from app.organization.models import (
     Branch,
     Department,
     Position,
-    Employee
+    Employee,
+    WorkSchedule,
 )
 from app.leave_management.models import (
     LeaveType,
@@ -20,6 +21,7 @@ from app.leave_management.models import (
     LeaveRequest,
     PublicHoliday
 )
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -14,6 +14,13 @@ from app.organization.services.employee import (
     delete_employee
 )
 
+from app.organization.services.work_schedule import (
+    get_work_schedule,
+)
+from app.organization.services.work_schedule_seed import (
+    seed_default_work_schedule,
+)
+
 
 __all__ = [
     "create_branch",
@@ -26,5 +33,8 @@ __all__ = [
     "get_employees",
     "get_employee",
     "update_employee",
-    "delete_employee"
+    "delete_employee",
+    
+    "get_work_schedule",
+    "seed_default_work_schedule",
 ]
