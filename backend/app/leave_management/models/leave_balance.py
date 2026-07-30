@@ -1,9 +1,8 @@
 from sqlalchemy import (
-    Integer,
+    Float,
     ForeignKey,
     UniqueConstraint
 )
-
 from sqlalchemy.orm import (
     mapped_column,
     relationship
@@ -43,15 +42,15 @@ class LeaveBalance(
 
 
     allocated_days = mapped_column(
-        Integer,
+        Float,
         nullable=False
     )
 
 
     used_days = mapped_column(
-        Integer,
+        Float,
         nullable=False,
-        default=0
+        default=0.0
     )
 
 
@@ -67,5 +66,5 @@ class LeaveBalance(
     )
     
     @property
-    def remaining_days(self) -> int:
+    def remaining_days(self) -> float:
         return self.allocated_days - self.used_days

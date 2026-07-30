@@ -18,7 +18,10 @@ from app.leave_management.services.leave_balance import (
 from app.leave_management.constants import (
     LEAVE_PENDING,
     LEAVE_APPROVED,
-    LEAVE_REJECTED
+    LEAVE_REJECTED,
+    LEAVE_FULL_DAY,
+    LEAVE_HALF_DAY_AM,
+    LEAVE_HALF_DAY_PM
 )
 
 from app.organization.models.employee import Employee
@@ -65,6 +68,18 @@ def create_leave_request(
             "End date cannot be before start date"
         )
         
+    if (
+        leave_request_data.duration in (
+            LEAVE_HALF_DAY_AM,
+            LEAVE_HALF_DAY_PM,
+        )
+        and
+        leave_request_data.start_date != leave_request_data.end_date
+    ):
+        raise ValueError(
+            "Half-day leave must start and end on the same day."
+        )
+        
     if has_overlapping_leave_request(
         db=db,
         employee_id=employee_id,
@@ -76,11 +91,17 @@ def create_leave_request(
         )
 
 
-    requested_days = calculate_leave_days(
-        db=db,
-        start_date=leave_request_data.start_date,
-        end_date=leave_request_data.end_date
-    )
+    if leave_request_data.duration in (
+        LEAVE_HALF_DAY_AM,
+        LEAVE_HALF_DAY_PM,
+    ):
+        requested_days = 0.5
+    else:
+        requested_days = calculate_leave_days(
+            db=db,
+            start_date=leave_request_data.start_date,
+            end_date=leave_request_data.end_date
+        )
 
 
     leave_balance = get_employee_leave_balance(
@@ -113,6 +134,7 @@ def create_leave_request(
         leave_type_id=leave_request_data.leave_type_id,
         start_date=leave_request_data.start_date,
         end_date=leave_request_data.end_date,
+        duration=leave_request_data.duration,
         reason=leave_request_data.reason,
         status=LEAVE_PENDING
     )
@@ -255,11 +277,17 @@ def approve_leave_request(
     if not can_approve:
         return False
     
-    days = calculate_leave_days(
-        db=db,
-        start_date=leave_request.start_date,
-        end_date=leave_request.end_date
-    )
+    if leave_request.duration in (
+        LEAVE_HALF_DAY_AM,
+        LEAVE_HALF_DAY_PM,
+    ):
+        days = 0.5
+    else:
+        days = calculate_leave_days(
+            db=db,
+            start_date=leave_request.start_date,
+            end_date=leave_request.end_date
+        )
 
     if status == LEAVE_APPROVED:
 

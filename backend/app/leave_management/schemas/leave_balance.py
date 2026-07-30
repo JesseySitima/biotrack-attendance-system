@@ -13,19 +13,17 @@ class LeaveTypeSimpleResponse(BaseModel):
         from_attributes = True
 
 
-
 class LeaveBalanceResponse(BaseModel):
 
     id: UUID
 
     leave_type: LeaveTypeSimpleResponse
 
-    allocated_days: int
+    allocated_days: float
 
-    used_days: int
+    used_days: float
 
-    remaining_days: int
-
+    remaining_days: float
 
     class Config:
         from_attributes = True

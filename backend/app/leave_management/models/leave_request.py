@@ -4,7 +4,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey
 )
-
+from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import (
     mapped_column,
     relationship
@@ -14,7 +14,10 @@ from datetime import datetime
 
 from app.models.base import Base
 from app.models.mixins import UUIDMixin, AuditMixin
-from app.leave_management.constants import LEAVE_PENDING
+from app.leave_management.constants import (
+    LEAVE_PENDING,
+    LEAVE_FULL_DAY
+)
 
 class LeaveRequest(
     Base,
@@ -54,6 +57,11 @@ class LeaveRequest(
         nullable=True
     )
 
+    duration: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        default=LEAVE_FULL_DAY
+    )
 
     status = mapped_column(
         String,
